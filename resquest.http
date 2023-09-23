@@ -1,0 +1,20 @@
+POST http://localhost:3000/product HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "vino 120",
+    "price": 1200,
+    "description": "vino pa curarse raja",
+    "category": "vino tinto"
+}
+
+###
+PUT http://localhost:3000/product/650f654c4c3e4121ae5788bc HTTP/1.1
+Content-Type: application/json
+
+{
+    "description": "vino pa curarse raja"
+}
+
+###
+GET http://localhost:3000/catalogdb/test/products/650f654c4c3e4121ae5788bc HTTP/1.1
