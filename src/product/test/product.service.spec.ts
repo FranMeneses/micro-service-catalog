@@ -4,11 +4,11 @@ import { Product } from "../schemas/product.schema"
 import { getModelToken } from "@nestjs/mongoose"
 import mongoose, { Model } from "mongoose"
 import { BadRequestException, NotFoundException } from "@nestjs/common"
-import { NotFoundError } from "rxjs"
+import { CreateProductDto } from "../dtos/create-product.dto"
 
 describe('ProductService', () => {
-    let productService: ProductService
-    let model: Model<Product>
+    let productService: ProductService;
+    let model: Model<Product>;
 
     const mockProduct = {
         _id: '650f654c4c3e4121ae5788bc',
@@ -17,9 +17,11 @@ describe('ProductService', () => {
         description: 'vino de calidah',
         category: 'vino tinto',
         status: 'PENDING'
-    }
+    };
 
     const mockProductService = {
+        create: jest.fn(),
+        find: jest.fn(),
         findById: jest.fn()
     };
 
@@ -36,6 +38,34 @@ describe('ProductService', () => {
 
         productService = module.get<ProductService>(ProductService)
         model = module.get<Model<Product>>(getModelToken(Product.name))
+    });
+
+    describe('create', () => {
+        it('should create a new product', async () => {
+            const newProduct = {
+                name: 'New Product',
+                price: 1500,
+                description: 'New product description',
+                category: 'New category',
+                status: 'PENDING'
+            };
+
+            //jest.spyOn(model, 'create').mockResolvedValueOnce(mockProduct);
+
+            const result = await productService.create(newProduct as CreateProductDto);
+
+            expect(result).toEqual(mockProduct);
+        });
+    });
+
+    describe('findAll', () => {
+        it('should return an array of products', async () => {
+            jest.spyOn(model, 'find').mockResolvedValueOnce([mockProduct]);
+
+            const result = await productService.findAll();
+
+            expect(result).toEqual([mockProduct]);
+        });
     });
 
     describe('findById', () => {

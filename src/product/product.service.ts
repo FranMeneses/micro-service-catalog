@@ -10,9 +10,12 @@ import { UpdateProductDto } from './dtos/update-product.dto';
 export class ProductService {
     constructor(@InjectModel(Product.name) private productModel: Model<Product>) { }
 
-    async create(product: CreateProductDto) {
-        const createdProduct = new this.productModel(product);
-        return createdProduct.save();
+    async create(product: CreateProductDto): Promise<Product>{
+        try {
+            return await this.productModel.create(product);
+          } catch (error) {
+            throw new Error('Product could not be created');
+          }
     }
 
     async update(id: string, product: UpdateProductDto) {
@@ -21,8 +24,9 @@ export class ProductService {
         }).exec();
     }
 
-    async findAll() {
-        return this.productModel.find().exec();
+    async findAll(): Promise<Product[]>{
+        const product = await this.productModel.find();
+        return product;
     }
 
     async findById(id: string): Promise<Product> {
