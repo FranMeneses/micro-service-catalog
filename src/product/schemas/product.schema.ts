@@ -1,11 +1,5 @@
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
 
-export enum ProductStatus{
-    PENDING = 'PENDING',
-    IN_PROGRESS = 'IN_PROGRESS',
-    COMPLETED = 'COMPLETED',
-}
-
 @Schema()
 export class Product {
     @Prop({ required: true })
@@ -20,8 +14,8 @@ export class Product {
     @Prop()
     category: string;
 
-    @Prop({ default: ProductStatus.PENDING })
-    status: ProductStatus;
+    @Prop()
+    image: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

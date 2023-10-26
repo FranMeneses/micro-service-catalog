@@ -1,5 +1,4 @@
 import { IsNotEmpty, IsString, IsNumber, IsEnum, IsOptional } from "class-validator";
-import { ProductStatus } from "../schemas/product.schema";
 
 export class CreateProductDto {
     @IsNotEmpty()
@@ -18,7 +17,7 @@ export class CreateProductDto {
     @IsOptional()
     category?: string;
 
-    @IsEnum(ProductStatus)
+    @IsString()
     @IsOptional()
-    status?: ProductStatus;
+    image?: string;
 }

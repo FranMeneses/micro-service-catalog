@@ -12,7 +12,7 @@ import { ProductController } from './product.controller';
                 name: Product.name,
                 schema: ProductSchema,
             }
-        ])
+        ]),
     ],
     providers: [ProductService],
     controllers: [ProductController]
