@@ -1,20 +1,26 @@
-import { Controller, Post, Body, ValidationPipe, Put, Get, Delete, Param } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, Put, Get, Delete, Param, Inject } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Controller('product')
 export class ProductController {
-    constructor(private productService: ProductService) {}
+    constructor(
+        private productService: ProductService,
+        @Inject('PRODUCT_SERVICE') private readonly client: ClientProxy,
+    ) {}
 
     @Post()
     async create(@Body(new ValidationPipe()) createProduct: CreateProductDto) {
-        return this.productService.create(createProduct);
+        const message = { action: 'create', data: createProduct };
+        await this.client.emit('product', message).toPromise();
     }
 
     @Put(':id')
     async update(@Param('id') id: string, @Body(new ValidationPipe()) updateProduct: UpdateProductDto) {
-        return this.productService.update(id, updateProduct);
+        const message = { action: 'update', data: { id, updateProduct } };
+        await this.client.emit('product', message).toPromise();
     }
 
     @Get()
@@ -29,6 +35,7 @@ export class ProductController {
 
     @Delete(':id')
     async delete(@Param('id') id: string){
-        return this.productService.delete(id);
+        const message = { action: 'delete', data: id };
+        await this.client.emit('product', message).toPromise();
     }
 }
