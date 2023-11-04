@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { Product } from './schemas/product.schema';
@@ -11,7 +11,7 @@ import { ClientProxy } from '@nestjs/microservices';
 export class ProductService {
     constructor(
         @InjectModel(Product.name) private productModel: Model<Product>,
-        private readonly client: ClientProxy,
+        @Inject('PRODUCT_SERVICE') private readonly client: ClientProxy,
     ) {}
 
     async create(product: CreateProductDto): Promise<Product>{

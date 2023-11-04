@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductModule } from './product/product.module';
-import { RabbitMQController } from './rabbitmq.controller';
+import { RabbitMQController } from './rabbitmq/rabbitmq.controller';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
