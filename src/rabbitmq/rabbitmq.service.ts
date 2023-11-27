@@ -1,27 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { ClientProxyFactory, Transport, ClientProxy } from '@nestjs/microservices';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { CreateProductDto } from '../product/dtos/create-product.dto';
 
 @Injectable()
 export class RabbitmqService {
-  private client: ClientProxy;
-
-  constructor() {
-    this.client = ClientProxyFactory.create({
-      transport: Transport.RMQ,
-      options: {
-        urls: [process.env.AMQP_URL],
-        queue: 'catalog_queue',
-        queueOptions: {
-          durable: false
-        },
-      },
-    });
-  }
+  constructor(@Inject('RABBITMQ_SERVICE') private client: ClientProxy) {}
 
   async sendMessage(createProductDto: CreateProductDto) {
-    const pattern = { cmd: 'createProduct' };
+    const pattern = 'catalog_queue';
     const payload = createProductDto;
-    return this.client.send(pattern, payload).toPromise();
+    return this.client.emit(pattern, payload).toPromise();
   }
 }

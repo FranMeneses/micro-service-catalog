@@ -11,12 +11,13 @@ import { ClientProxy } from '@nestjs/microservices';
 export class ProductService {
     constructor(
         @InjectModel(Product.name) private productModel: Model<Product>,
-        @Inject('PRODUCT_SERVICE') private readonly client: ClientProxy,
+        @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy,
     ) {}
 
     async create(product: CreateProductDto): Promise<Product>{
         try {
             const newProduct = await this.productModel.create(product);
+            this.client.emit('catalog_queue', { action: 'create', data: newProduct });
             return newProduct;
           } catch (error) {
             throw new Error('Product could not be created');
@@ -27,6 +28,7 @@ export class ProductService {
         const updatedProduct = await this.productModel.findByIdAndUpdate(id, product, {
             new: true,
         }).exec();
+        this.client.emit('catalog_queue', { action: 'update', data: updatedProduct });
         return updatedProduct;
     }
 
@@ -53,10 +55,12 @@ export class ProductService {
 
     async delete(id: string): Promise<Product> {
         const deletedProduct = await this.productModel.findByIdAndDelete(id).exec();
+        this.client.emit('catalog_queue', { action: 'delete', data: id });
         return deletedProduct;
     }
 
     async processRabbitMQMessage(message: { action: string, data: any }): Promise<Product> {
+        console.log('Received message:', message);
         const { action, data } = message;
 
         switch (action) {

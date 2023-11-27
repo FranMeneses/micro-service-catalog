@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './schemas/product.schema';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { RabbitmqModule } from 'src/rabbitmq/rabbitmq.module';
 
 @Module({
     imports: [
@@ -13,19 +13,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
                 schema: ProductSchema,
             }
         ]),
-        ClientsModule.register([
-            {
-                name: 'PRODUCT_SERVICE',
-                transport: Transport.RMQ,
-                options: {
-                    urls: [process.env.AMQP_URL],
-                    queue: 'products_queue',
-                    queueOptions: {
-                        durable: false,
-                    },
-                },
-            },
-        ]),
+        RabbitmqModule
     ],
     providers: [ProductService],
     controllers: [ProductController],
