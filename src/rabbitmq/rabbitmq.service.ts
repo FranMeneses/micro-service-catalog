@@ -8,7 +8,7 @@ export class RabbitmqService {
 
   async sendMessage(createProductDto: CreateProductDto) {
     const pattern = 'catalog_queue';
-    const payload = createProductDto;
+    const payload = { action: 'create', product: createProductDto };
     return this.client.emit(pattern, payload).toPromise();
   }
 }
