@@ -14,28 +14,15 @@ export class ProductService {
         @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy,
     ) {}
 
-    async createDb(product: CreateProductDto): Promise<Product> {
+    async create(product: CreateProductDto): Promise<Product> {
         const newProduct = await this.productModel.create(product);
         return newProduct;
     }
 
-    async create(product: CreateProductDto): Promise<Product> {
-        const newProduct = await this.createDb(product);
-        const message = { action: 'create', product: newProduct };
-        this.client.emit('catalog_queue', message);
-        return newProduct;
-    }
-
-    async updateDb(id: string, product: UpdateProductDto): Promise<Product> {
+    async update(id: string, product: UpdateProductDto): Promise<Product> {
         const updatedProduct = await this.productModel.findByIdAndUpdate(id, product, {
             new: true,
         }).exec();
-        return updatedProduct;
-    }
-
-    async update(id: string, product: UpdateProductDto): Promise<Product> {
-        const updatedProduct = await this.updateDb(id, product);
-        this.client.emit('catalog_queue', { action: 'update', product: updatedProduct });
         return updatedProduct;
     }
 
@@ -60,28 +47,22 @@ export class ProductService {
         return product;
     }
 
-    async deleteDb(id: string): Promise<Product> {
+    async delete(id: string): Promise<Product> {
         const deletedProduct = await this.productModel.findByIdAndDelete(id).exec();
         return deletedProduct;
     }
 
-    async delete(id: string): Promise<Product> {
-        const deletedProduct = await this.deleteDb(id);
-        this.client.emit('catalog_queue', { action: 'delete', product: id });
-        return deletedProduct;
-    }
-
     async processRabbitMQMessage(message: { action: string, product: any }): Promise<Product> {
-        console.log('Received message in product service:', message);
+        console.log('Received message in product service:', message.action);
         const { action, product } = message;
     
         switch (action) {
             case 'create':
-                return this.createDb(product);
+                return this.create(product);
             case 'update':
-                return this.updateDb(product.id, product);
+                return this.update(product.id, product);
             case 'delete':
-                return this.deleteDb(product);
+                return this.delete(product);
             default:
                 throw new BadRequestException('Invalid action in RabbitMQ message.');
         }
