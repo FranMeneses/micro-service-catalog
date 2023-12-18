@@ -32,18 +32,7 @@ export class ProductService {
     }
 
     async findById(id: string): Promise<Product> {
-        const isValidId = mongoose.isValidObjectId(id);
-
-        if (!isValidId) {
-            throw new BadRequestException('Please enter a valid id.');
-        }
-
         const product = await this.productModel.findById(id);
-
-        if (!product) {
-            throw new NotFoundException('Product not found.')
-        }
-
         return product;
     }
 
@@ -62,7 +51,7 @@ export class ProductService {
             case 'update':
                 return this.update(product.id, product);
             case 'delete':
-                return this.delete(product);
+                return this.delete(product.id);
             default:
                 throw new BadRequestException('Invalid action in RabbitMQ message.');
         }
